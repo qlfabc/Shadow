@@ -38,19 +38,28 @@ public class DemoFragment extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
         @Nullable Bundle savedInstanceState) {
-        view = View.inflate(getActivity(), R.layout.fragment_item_list, null);
+        view = inflater.inflate(R.layout.fragment_item_list, null);
         Log.d(TAG, "DemoFragment onCreateView view : " + view);
-        initView(view);
+        initView();
         return view;
     }
 
-    private void initView(View view) {
+    private void initView() {
         if (view == null) {
             return;
         }
-        view.findViewById(R.id.btn_dialog).setOnClickListener(this);
-        view.findViewById(R.id.btn_activity).setOnClickListener(this);
-        view.findViewById(R.id.btn_text).setOnClickListener(this);
+        View viewDialog = view.findViewById(R.id.btn_dialog);
+        if (viewDialog != null) {
+            viewDialog.setOnClickListener(this);
+        }
+        View viewActivity = view.findViewById(R.id.btn_activity);
+        if (viewActivity != null) {
+            viewActivity.setOnClickListener(this);
+        }
+        View viewText = view.findViewById(R.id.btn_text);
+        if (viewText != null) {
+            viewText.setOnClickListener(this);
+        }
     }
 
     @Override

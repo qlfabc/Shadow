@@ -1,8 +1,8 @@
 package com.tencent.shadow.sample.host;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import com.tencent.shadow.dynamic.host.ObjectCallBack;
 import com.tencent.shadow.sample.constant.Constant;
 
@@ -11,7 +11,7 @@ import com.tencent.shadow.sample.constant.Constant;
  * @date : 2020/6/9 9:23 AM 
  * @version :
  */
-public class DemoFragmentActivity extends FragmentActivity {
+public class DemoFragmentActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class DemoFragmentActivity extends FragmentActivity {
             public void run() {
                 if (obj instanceof Fragment) {
                     Fragment fragment = (Fragment) obj;
-                    getSupportFragmentManager().beginTransaction()
+                    getFragmentManager().beginTransaction()
                         .replace(R.id.content_layout, fragment).commit();
                 }
             }
