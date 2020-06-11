@@ -20,10 +20,8 @@ package com.tencent.shadow.dynamic.host;
 
 import android.content.Context;
 import android.os.Bundle;
-
 import com.tencent.shadow.core.common.Logger;
 import com.tencent.shadow.core.common.LoggerFactory;
-
 import java.io.File;
 
 public final class DynamicPluginManager implements PluginManager {
@@ -51,6 +49,16 @@ public final class DynamicPluginManager implements PluginManager {
         mUpdater.update();
     }
 
+    @Override
+    public void getObject(Context context, long fromId, Bundle bundle, ObjectCallBack callback) {
+        if (mLogger.isInfoEnabled()) {
+            mLogger.info("getObject fromId:" + fromId + " callback:" + callback);
+        }
+        updateManagerImpl(context);
+        mUpdater.update();
+        mManagerImpl.getObject(context, fromId, bundle, callback);
+    }
+
     public void release() {
         if (mLogger.isInfoEnabled()) {
             mLogger.info("release");
@@ -61,6 +69,7 @@ public final class DynamicPluginManager implements PluginManager {
         }
     }
 
+    // 更新PluginManager
     private void updateManagerImpl(Context context) {
         File latestManagerImplApk = mUpdater.getLatest();
         long lastModified = latestManagerImplApk.lastModified();

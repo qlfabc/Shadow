@@ -21,17 +21,17 @@ package com.tencent.shadow.sample.manager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
-
+import com.tencent.shadow.core.common.InstalledApk;
 import com.tencent.shadow.core.common.Logger;
 import com.tencent.shadow.core.common.LoggerFactory;
 import com.tencent.shadow.core.manager.installplugin.InstalledPlugin;
+import com.tencent.shadow.core.manager.installplugin.InstalledPlugin.Part;
 import com.tencent.shadow.core.manager.installplugin.InstalledType;
 import com.tencent.shadow.core.manager.installplugin.PluginConfig;
 import com.tencent.shadow.dynamic.host.FailedException;
 import com.tencent.shadow.dynamic.manager.PluginManagerThatUseDynamicLoader;
-
-import org.json.JSONException;
-
+import com.tencent.shadow.sample.host.lib.inter.ObjectFactory;
+import dalvik.system.DexClassLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -44,6 +44,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.json.JSONException;
 
 public abstract class FastPluginManager extends PluginManagerThatUseDynamicLoader {
 
@@ -112,21 +113,78 @@ public abstract class FastPluginManager extends PluginManagerThatUseDynamicLoade
     }
 
 
-    public void startPluginActivity( InstalledPlugin installedPlugin, String partKey, Intent pluginIntent) throws RemoteException, TimeoutException, FailedException {
+    public void startPluginActivity(InstalledPlugin installedPlugin, String partKey, Intent pluginIntent)
+        throws RemoteException, TimeoutException, FailedException {
         Intent intent = convertActivityIntent(installedPlugin, partKey, pluginIntent);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mPluginLoader.startActivityInPluginProcess(intent);
 
     }
 
+    private static final String OBJECT_FACTORY_CLASS_NAME = "com.tencent.shadow.sample.plugin.app.lib.ObjectFactoryImpl";
+
+    public Object getPluginObject(InstalledPlugin installedPlugin, String partKey,
+        String className) throws RemoteException, TimeoutException, FailedException {
+
+        preparePlugin(installedPlugin, partKey);
+
+        Part part = installedPlugin.getPart(partKey);
+        InstalledApk installedApk = new InstalledApk(part.pluginFile.getAbsolutePath(),
+            part.oDexDir == null ? null : part.oDexDir.getAbsolutePath(),
+            part.libraryDir == null ? null : part.libraryDir.getAbsolutePath());
+
+        DexClassLoader apkClassLoader = new DexClassLoader(
+            installedApk.apkFilePath,
+            installedApk.oDexPath,
+            installedApk.libraryPath,
+            ObjectFactory.class.getClassLoader()
+        );
+
+        try {
+            ObjectFactory objectFactory = getInterface(
+                apkClassLoader,
+                ObjectFactory.class,
+                OBJECT_FACTORY_CLASS_NAME
+            );
+            return objectFactory.getObject(className);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 从apk中读取接口的实现
+     *
+     * @param clazz     接口类
+     * @param className 实现类的类名
+     * @param <T>       接口类型
+     * @return 所需接口
+     * @throws Exception
+     */
+    <T> T getInterface(DexClassLoader loader, Class<T> clazz, String className) throws Exception {
+        try {
+            Class<?> interfaceImplementClass = loader.loadClass(className);
+            Object interfaceImplement = interfaceImplementClass.newInstance();
+            return clazz.cast(interfaceImplement);
+        } catch (ClassNotFoundException | InstantiationException
+            | ClassCastException | IllegalAccessException e) {
+            throw new Exception(e);
+        }
+    }
+
     public Intent convertActivityIntent(InstalledPlugin installedPlugin, String partKey, Intent pluginIntent) throws RemoteException, TimeoutException, FailedException {
+        preparePlugin(installedPlugin, partKey);
+        return mPluginLoader.convertActivityIntent(pluginIntent);
+    }
+
+    public void preparePlugin(InstalledPlugin installedPlugin, String partKey)
+        throws RemoteException, TimeoutException, FailedException {
         loadPlugin(installedPlugin.UUID, partKey);
         Map map = mPluginLoader.getLoadedPlugin();
         Boolean isCall = (Boolean) map.get(partKey);
         if (isCall == null || !isCall) {
             mPluginLoader.callApplicationOnCreate(partKey);
         }
-        return mPluginLoader.convertActivityIntent(pluginIntent);
     }
 
     private void loadPluginLoaderAndRuntime(String uuid, String partKey) throws RemoteException, TimeoutException, FailedException {

@@ -29,7 +29,8 @@ final class ManagerImplLoader extends ImplLoader {
     private static final String[] REMOTE_PLUGIN_MANAGER_INTERFACES = new String[]
             {
                     "com.tencent.shadow.core.common",
-                    "com.tencent.shadow.dynamic.host"
+                    "com.tencent.shadow.dynamic.host",
+                    "com.tencent.shadow.sample.host.lib.inter"
             };
     final private Context applicationContext;
     final private InstalledApk installedApk;

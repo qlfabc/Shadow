@@ -100,6 +100,11 @@
             android:launchMode="standard"
             android:screenOrientation="portrait"
             />
+        <activity
+            android:name="com.tencent.shadow.sample.host.DemoFragmentActivity"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
+            />
 
         <!--dynamic activity注册
           注意configChanges需要全注册

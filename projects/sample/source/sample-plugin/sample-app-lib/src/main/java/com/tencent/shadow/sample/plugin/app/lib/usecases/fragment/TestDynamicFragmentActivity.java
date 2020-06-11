@@ -18,9 +18,10 @@
 
 package com.tencent.shadow.sample.plugin.app.lib.usecases.fragment;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
+import com.tencent.shadow.sample.plugin.app.lib.DemoFragment;
 import com.tencent.shadow.sample.plugin.app.lib.R;
 import com.tencent.shadow.sample.plugin.app.lib.gallery.BaseActivity;
 import com.tencent.shadow.sample.plugin.app.lib.gallery.cases.entity.UseCase;
@@ -49,10 +50,7 @@ public class TestDynamicFragmentActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_fragment_activity);
 
-        String msg = "这是一个动态添加的fragment";
-        Bundle bundle = new Bundle();
-        bundle.putString("msg", msg);
-        TestFragment testFragment = TestFragment.newInstance(bundle);
-        getFragmentManager().beginTransaction().add(R.id.fragment_container,testFragment).commit();
+        Fragment testFragment = DemoFragment.newInstance();
+        getFragmentManager().beginTransaction().add(R.id.fragment_container, testFragment).commit();
     }
 }

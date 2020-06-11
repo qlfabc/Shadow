@@ -23,11 +23,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-
 import com.tencent.shadow.core.manager.installplugin.InstalledPlugin;
+import com.tencent.shadow.core.manager.installplugin.InstalledPlugin.Part;
 import com.tencent.shadow.dynamic.host.EnterCallback;
+import com.tencent.shadow.dynamic.host.ObjectCallBack;
 import com.tencent.shadow.sample.constant.Constant;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -83,6 +83,38 @@ public class SamplePluginManager extends FastPluginManager {
         } else {
             throw new IllegalArgumentException("不认识的fromId==" + fromId);
         }
+    }
+
+    @Override
+    public void getObject(Context context, long fromId, Bundle bundle, ObjectCallBack callback) {
+        if (fromId == Constant.FROM_ID_GET_OBJECT) {
+            onGetObject(bundle, callback);
+        } else {
+            throw new IllegalArgumentException("不认识的fromId==" + fromId);
+        }
+    }
+
+    private void onGetObject(Bundle bundle, final ObjectCallBack callback) {
+        final String pluginZipPath = bundle.getString(Constant.KEY_PLUGIN_ZIP_PATH);
+        final String partKey = bundle.getString(Constant.KEY_PLUGIN_PART_KEY);
+        final String className = bundle.getString(Constant.KEY_FRAGMENT_CLASSNAME);
+        if (className == null) {
+            throw new NullPointerException("className == null");
+        }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    InstalledPlugin installedPlugin = installPlugin(pluginZipPath, null, true);
+                    Part part = installedPlugin.getPart(partKey);
+                    if (part != null && callback != null) {
+                        callback.onGetObject(getPluginObject(installedPlugin, partKey, className));
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     private void onStartActivity(final Context context, Bundle bundle, final EnterCallback callback) {

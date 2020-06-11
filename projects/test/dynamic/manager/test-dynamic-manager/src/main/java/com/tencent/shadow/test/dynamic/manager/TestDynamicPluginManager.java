@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.tencent.shadow.dynamic.host.EnterCallback;
+import com.tencent.shadow.dynamic.host.ObjectCallBack;
 import com.tencent.shadow.dynamic.host.PluginManagerImpl;
 import com.tencent.shadow.test.lib.constant.Constant;
 
@@ -40,5 +41,10 @@ final public class TestDynamicPluginManager implements PluginManagerImpl {
         } else {
             activityPluginManager.enter(context, fromId, bundle, callback);
         }
+    }
+
+    @Override
+    public void getObject(Context context, long l, Bundle bundle, ObjectCallBack objectCallBack) {
+
     }
 }

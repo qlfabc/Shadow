@@ -34,6 +34,9 @@ dependencies {
     implementation 'com.tencent.shadow.dynamic:dynamic-loader'
     implementation project(':sample-constant')
 
+    // 公共接口
+    compileOnly project(':sample-host-lib')
+
     compileOnly 'com.tencent.shadow.core:common-debug'
     compileOnly 'com.tencent.shadow.dynamic:dynamic-host-debug'
 }

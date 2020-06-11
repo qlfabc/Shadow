@@ -24,13 +24,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.tencent.shadow.sample.constant.Constant;
 
 
@@ -51,8 +51,9 @@ public class MainActivity extends Activity {
         final Spinner partKeySpinner = new Spinner(this);
         ArrayAdapter<String> partKeysAdapter = new ArrayAdapter<>(this, R.layout.part_key_adapter);
         partKeysAdapter.addAll(
-                Constant.PART_KEY_PLUGIN_MAIN_APP,
-                Constant.PART_KEY_PLUGIN_ANOTHER_APP
+            Constant.PART_KEY_PLUGIN_MAIN_APP,
+            Constant.PART_KEY_PLUGIN_ANOTHER_APP,
+            Constant.PART_KEY_PLUGIN_FRAGMENT
         );
         partKeySpinner.setAdapter(partKeysAdapter);
 
@@ -63,17 +64,27 @@ public class MainActivity extends Activity {
         startPluginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent;
                 String partKey = (String) partKeySpinner.getSelectedItem();
-                Intent intent = new Intent(MainActivity.this, PluginLoadActivity.class);
-                intent.putExtra(Constant.KEY_PLUGIN_PART_KEY, partKey);
                 switch (partKey) {
+                    case Constant.PART_KEY_PLUGIN_FRAGMENT:
+                        intent = new Intent(MainActivity.this, DemoFragmentActivity.class);
+                        intent.putExtra(Constant.KEY_FRAGMENT_CLASSNAME,
+                            "com.tencent.shadow.sample.plugin.app.lib.DemoFragment");
+                        break;
                     //为了演示多进程多插件，其实两个插件内容完全一样，除了所在进程
                     case Constant.PART_KEY_PLUGIN_MAIN_APP:
                     case Constant.PART_KEY_PLUGIN_ANOTHER_APP:
-                        intent.putExtra(Constant.KEY_ACTIVITY_CLASSNAME, "com.tencent.shadow.sample.plugin.app.lib.gallery.splash.SplashActivity");
+                    default:
+                        intent = new Intent(MainActivity.this, PluginLoadActivity.class);
+                        intent.putExtra(Constant.KEY_ACTIVITY_CLASSNAME,
+                            "com.tencent.shadow.sample.plugin.app.lib.gallery.splash.SplashActivity");
                         break;
-
                 }
+                if (TextUtils.equals(partKey, Constant.PART_KEY_PLUGIN_FRAGMENT)) {
+                    partKey = Constant.PART_KEY_PLUGIN_MAIN_APP;
+                }
+                intent.putExtra(Constant.KEY_PLUGIN_PART_KEY, partKey);
                 startActivity(intent);
             }
         });

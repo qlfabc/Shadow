@@ -26,6 +26,7 @@ import android.view.View;
 
 import com.tencent.shadow.core.manager.installplugin.InstalledPlugin;
 import com.tencent.shadow.dynamic.host.EnterCallback;
+import com.tencent.shadow.dynamic.host.ObjectCallBack;
 import com.tencent.shadow.test.lib.constant.Constant;
 import com.tencent.shadow.test.lib.test_manager.TestManager;
 
@@ -77,6 +78,11 @@ public class ActivityTestDynamicPluginManager extends FastPluginManager {
         } else {
             throw new IllegalArgumentException("不认识的fromId==" + fromId);
         }
+    }
+
+    @Override
+    public void getObject(Context context, long l, Bundle bundle, ObjectCallBack objectCallBack) {
+
     }
 
     private void onStartActivity(final Context context, Bundle bundle, final EnterCallback callback) {
